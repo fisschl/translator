@@ -1,84 +1,110 @@
-import { mount } from "@vue/test-utils";
 import { describe, it, expect, vi } from "vitest";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-vue";
 import TheWelcome from "./TheWelcome.vue";
-import WelcomeItem from "./WelcomeItem.vue";
-
-vi.mock("./icons/IconDocumentation.vue", () => ({
-  default: { template: "<span data-testid='doc-icon'>DocIcon</span>" },
-}));
-vi.mock("./icons/IconTooling.vue", () => ({
-  default: { template: "<span data-testid='tool-icon'>ToolIcon</span>" },
-}));
-vi.mock("./icons/IconEcosystem.vue", () => ({
-  default: { template: "<span data-testid='eco-icon'>EcoIcon</span>" },
-}));
-vi.mock("./icons/IconCommunity.vue", () => ({
-  default: { template: "<span data-testid='comm-icon'>CommIcon</span>" },
-}));
-vi.mock("./icons/IconSupport.vue", () => ({
-  default: { template: "<span data-testid='supp-icon'>SuppIcon</span>" },
-}));
 
 describe("TheWelcome", () => {
-  it("renders 5 WelcomeItem components", () => {
-    const wrapper = mount(TheWelcome);
-    const welcomeItems = wrapper.findAllComponents(WelcomeItem);
-    expect(welcomeItems).toHaveLength(5);
+  it("renders 5 WelcomeItem sections", async () => {
+    const screen = await render(TheWelcome);
+
+    // 使用 heading role 精确匹配，避免文本重复
+    await expect
+      .element(screen.getByRole("heading", { name: "Documentation" }))
+      .toBeInTheDocument();
+    await expect
+      .element(screen.getByRole("heading", { name: "Tooling" }))
+      .toBeInTheDocument();
+    await expect
+      .element(screen.getByRole("heading", { name: "Ecosystem" }))
+      .toBeInTheDocument();
+    await expect
+      .element(screen.getByRole("heading", { name: "Community" }))
+      .toBeInTheDocument();
+    await expect
+      .element(screen.getByRole("heading", { name: "Support Vue" }))
+      .toBeInTheDocument();
   });
 
-  it("renders Documentation section", () => {
-    const wrapper = mount(TheWelcome);
-    expect(wrapper.text()).toContain("Documentation");
-    expect(wrapper.text()).toContain("official documentation");
+  it("renders Documentation section with correct content", async () => {
+    const screen = await render(TheWelcome);
+
+    await expect
+      .element(screen.getByText(/official documentation/i))
+      .toBeInTheDocument();
+    await expect
+      .element(
+        screen.getByRole("link", { name: /official documentation/i }),
+      )
+      .toHaveAttribute("href", "https://vuejs.org/");
   });
 
-  it("renders Tooling section", () => {
-    const wrapper = mount(TheWelcome);
-    expect(wrapper.text()).toContain("Tooling");
-    expect(wrapper.text()).toContain("Vite");
-    expect(wrapper.text()).toContain("VSCode");
+  it("renders Tooling section with correct content", async () => {
+    const screen = await render(TheWelcome);
+
+    // 使用精确匹配避免匹配到 Vitest
+    await expect
+      .element(screen.getByRole("link", { name: "Vite", exact: true }))
+      .toBeInTheDocument();
+    await expect
+      .element(screen.getByRole("link", { name: "VSCode" }))
+      .toBeInTheDocument();
   });
 
-  it("renders Ecosystem section", () => {
-    const wrapper = mount(TheWelcome);
-    expect(wrapper.text()).toContain("Ecosystem");
-    expect(wrapper.text()).toContain("Pinia");
-    expect(wrapper.text()).toContain("Vue Router");
+  it("renders Ecosystem section with correct content", async () => {
+    const screen = await render(TheWelcome);
+
+    await expect
+      .element(screen.getByRole("link", { name: "Pinia" }))
+      .toBeInTheDocument();
+    await expect
+      .element(screen.getByRole("link", { name: "Vue Router" }))
+      .toBeInTheDocument();
   });
 
-  it("renders Community section", () => {
-    const wrapper = mount(TheWelcome);
-    expect(wrapper.text()).toContain("Community");
-    expect(wrapper.text()).toContain("Vue Land");
-    expect(wrapper.text()).toContain("StackOverflow");
-  });
+  it("renders Community section with correct content", async () => {
+    const screen = await render(TheWelcome);
 
-  it("renders Support Vue section", () => {
-    const wrapper = mount(TheWelcome);
-    expect(wrapper.text()).toContain("Support Vue");
-    expect(wrapper.text()).toContain("becoming a sponsor");
+    await expect
+      .element(screen.getByRole("link", { name: "Vue Land" }))
+      .toBeInTheDocument();
+    await expect
+      .element(screen.getByRole("link", { name: "StackOverflow" }))
+      .toBeInTheDocument();
   });
 
   it("opens README.md when clicking the link", async () => {
     const mockFetch = vi.fn();
     vi.stubGlobal("fetch", mockFetch);
 
-    const wrapper = mount(TheWelcome);
-    const readmeLink = wrapper.find('a[href="javascript:void(0)"]');
+    const screen = await render(TheWelcome);
 
-    await readmeLink.trigger("click");
+    // 查找 README.md 链接并点击
+    const readmeLink = screen.getByRole("link", { name: /README\.md/i });
+    await readmeLink.click();
 
     expect(mockFetch).toHaveBeenCalledWith("/__open-in-editor?file=README.md");
   });
 
-  it("has correct external links with proper attributes", () => {
-    const wrapper = mount(TheWelcome);
-    const externalLinks = wrapper.findAll('a[target="_blank"]');
+  it("has correct external links with proper attributes", async () => {
+    await render(TheWelcome);
 
-    expect(externalLinks.length).toBeGreaterThan(0);
+    // 获取所有外部链接并验证它们都有正确的属性
+    const viteLink = page.getByRole("link", { name: "Vite", exact: true });
+    const vsCodeLink = page.getByRole("link", { name: "VSCode" });
 
-    externalLinks.forEach((link) => {
-      expect(link.attributes("rel")).toBe("noopener");
-    });
+    await expect.element(viteLink).toHaveAttribute("target", "_blank");
+    await expect.element(viteLink).toHaveAttribute("rel", "noopener");
+    await expect.element(vsCodeLink).toHaveAttribute("target", "_blank");
+    await expect.element(vsCodeLink).toHaveAttribute("rel", "noopener");
+  });
+
+  it("all external links open in new tab", async () => {
+    const screen = await render(TheWelcome);
+
+    const viteLink = screen.getByRole("link", { name: "Vite", exact: true });
+    const piniaLink = screen.getByRole("link", { name: "Pinia" });
+
+    await expect.element(viteLink).toHaveAttribute("target", "_blank");
+    await expect.element(piniaLink).toHaveAttribute("target", "_blank");
   });
 });

@@ -1,0 +1,14 @@
+node_modules
+.DS_Store
+dist
+.idea
+*.tsbuildinfo
+.eslintcache
+__screenshots__
+logs
+auto-imports.d.ts
+components.d.ts
+.qoder
+.playwright-cli
+.cache
+.opencode

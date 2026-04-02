@@ -1,0 +1,10 @@
+{
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "files.exclude": {
+    ".git": true,
+    ".idea": true,
+    ".eslintcache": true,
+    "auto-imports.d.ts": true,
+    "components.d.ts": true
+  }
+}

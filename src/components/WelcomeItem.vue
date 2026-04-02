@@ -1,10 +1,10 @@
 <template>
-  <div class="item">
-    <i>
+  <div :class="$style.item">
+    <i :class="$style.icon">
       <slot name="icon"></slot>
     </i>
-    <div class="details">
-      <h3>
+    <div :class="$style.details">
+      <h3 :class="$style.heading">
         <slot name="heading"></slot>
       </h3>
       <slot></slot>
@@ -12,7 +12,7 @@
   </div>
 </template>
 
-<style scoped>
+<style module>
 .item {
   margin-top: 2rem;
   display: flex;
@@ -24,7 +24,7 @@
   margin-left: 1rem;
 }
 
-i {
+.icon {
   display: flex;
   place-items: center;
   place-content: center;
@@ -34,7 +34,7 @@ i {
   color: var(--color-text);
 }
 
-h3 {
+.heading {
   font-size: 1.2rem;
   font-weight: 500;
   margin-bottom: 0.4rem;
@@ -47,7 +47,7 @@ h3 {
     padding: 0.4rem 0 1rem calc(var(--section-gap) / 2);
   }
 
-  i {
+  .icon {
     top: calc(50% - 25px);
     left: -26px;
     position: absolute;
@@ -59,7 +59,7 @@ h3 {
   }
 
   .item:before {
-    content: ' ';
+    content: " ";
     border-left: 1px solid var(--color-border);
     position: absolute;
     left: 0;
@@ -68,7 +68,7 @@ h3 {
   }
 
   .item:after {
-    content: ' ';
+    content: " ";
     border-left: 1px solid var(--color-border);
     position: absolute;
     left: 0;

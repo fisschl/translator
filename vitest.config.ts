@@ -13,6 +13,12 @@ const testConfig = defineConfig({
           viewport: { width: 1920, height: 1080 },
         },
       ],
+      // 配置静态文件服务，使 MSW Service Worker 可用
+      server: {
+        static: {
+          dir: ["./public"],
+        },
+      },
     },
   },
 });

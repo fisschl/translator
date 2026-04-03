@@ -49,10 +49,16 @@
     "eslint-plugin-oxlint": "^1.58.0",
     "eslint-plugin-vue": "^10.8.0",
     "jiti": "^2.6.1",
+    "msw": "^2.12.14",
     "oxfmt": "^0.43.0",
     "oxlint": "^1.58.0",
     "vitest": "^4.1.2",
     "vitest-browser-vue": "^2.1.0",
     "vue-tsc": "^3.2.6"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

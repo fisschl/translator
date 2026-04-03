@@ -10,7 +10,7 @@ export default defineConfigWithVueTs(
   vueTsConfigs.recommended,
   {
     ...pluginVitest.configs.recommended,
-    files: ["src/**/__tests__/*"],
+    files: ["src/**/*.spec.ts"],
   },
   ...pluginOxlint.buildFromOxlintConfigFile(".oxlintrc.json"),
   skipFormatting,

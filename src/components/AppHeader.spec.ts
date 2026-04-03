@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render } from "vitest-browser-vue";
-import AppHeader from "./AppHeader.vue";
 import { router } from "../router";
+import AppHeader from "./AppHeader.vue";
 
 describe("AppHeader 应用头部组件", () => {
   it("应该正确渲染应用标题", async () => {

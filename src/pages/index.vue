@@ -60,9 +60,22 @@ function onSubmit() {
         </template>
       </template>
     </UChatMessages>
-    <UChatPrompt v-model="input" :error="chat.error" class="sticky bottom-4" @submit="onSubmit">
-      <UChatPromptSubmit :status="chat.status" @stop="chat.stop()" @reload="chat.regenerate()" />
-    </UChatPrompt>
+    <UForm class="sticky bottom-4" @submit="onSubmit">
+      <UTextarea
+        v-model="input"
+        :rows="10"
+        autoresize
+        autofocus
+        placeholder="请输入要翻译的内容..."
+        class="w-full"
+      />
+      <UButton
+        type="submit"
+        icon="i-lucide-send"
+        :loading="chat.status === 'streaming'"
+        class="absolute bottom-2 right-2"
+      />
+    </UForm>
   </UContainer>
 </template>
 

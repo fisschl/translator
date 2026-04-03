@@ -8,6 +8,7 @@ import { computed } from "vue";
 import MarkdownBlock from "./MarkdownBlock.vue";
 import type { MarkedVuePlugin } from "./plugin";
 import "katex/dist/katex.min.css";
+import remend from "remend";
 import "./markdown.css";
 
 const props = defineProps<{
@@ -29,7 +30,11 @@ const props = defineProps<{
  */
 function chunkMarkdownByTopLevelBlocks(markdown: string) {
   // 解析 Markdown 为 AST，获取顶级子节点
-  const { children } = unified().use(remarkParse).use(remarkGfm).use(remarkMath).parse(markdown);
+  const { children } = unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkMath)
+    .parse(remend(markdown));
 
   // 将每个顶级块节点重新序列化为 Markdown 字符串
   return children.map((blockNode) => {
@@ -46,7 +51,7 @@ const blocks = computed(() => chunkMarkdownByTopLevelBlocks(props.content));
 </script>
 
 <template>
-  <article class="markdown-article" role="article">
+  <article class="markdown-custom prose max-w-none dark:prose-invert" role="article">
     <MarkdownBlock
       v-for="(block, index) in blocks"
       :key="index"

@@ -68,7 +68,7 @@ describe("MarkdownContent Markdown内容组件", () => {
     await expect.element(article).toBeInTheDocument();
   });
 
-  it("应该使用 markdown-article 类", async () => {
+  it("应该使用 prose 和 markdown-custom 类", async () => {
     const screen = await render(MarkdownContent, {
       props: {
         content: "Test content",
@@ -76,7 +76,9 @@ describe("MarkdownContent Markdown内容组件", () => {
     });
 
     const article = screen.getByRole("article");
-    await expect.element(article).toHaveClass("markdown-article");
+    await expect.element(article).toHaveClass("prose");
+    await expect.element(article).toHaveClass("max-w-none");
+    await expect.element(article).toHaveClass("dark:prose-invert");
   });
 
   it("应该渲染复杂 Markdown 文档", async () => {

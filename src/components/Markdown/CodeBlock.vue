@@ -20,29 +20,15 @@ const highlight = async (code: string, language: string) => {
   // 使用 Shiki 将代码转换为 HAST
   const hast = await codeToHast(code, {
     lang: language,
-    theme: "catppuccin-latte",
+    theme: "catppuccin-frappe",
   });
-  // 将 HAST 转换为 VNode 数组
   return hastRootToVueVNodes(hast);
 };
 
 /** 异步计算高亮后的 VNode 数组 */
 const content = computed(() => highlight(props.code, props.language));
-
-
 </script>
 
 <template>
-  <div :class="$style.container">
-    <AsyncRenderer :content="content" />
-  </div>
+  <AsyncRenderer :content="content" />
 </template>
-
-<style module>
-
-.container pre {
-  margin: 0;
-  padding: 1rem;
-  overflow-x: auto;
-}
-</style>

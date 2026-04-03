@@ -6,7 +6,7 @@
     "dev": "vite",
     "preview": "vite preview",
     "build": "vite build",
-    "test": "vitest",
+    "test": "vitest run",
     "lint": "oxlint --fix && eslint --fix --cache && oxfmt && vue-tsc --build"
   },
   "dependencies": {

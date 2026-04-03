@@ -31,6 +31,8 @@ function onSubmit() {
       :status="chat.status"
       :class="$style.messages"
       class="py-4"
+      should-auto-scroll
+      should-scroll-to-bottom
     >
       <template #content="{ message }">
         <template v-for="(part, index) in message.parts" :key="index">

@@ -7,11 +7,12 @@
   --font-mono: "Cascadia Code", "Noto Sans SC", monospace;
 }
 
-:root {
+:root,
+body {
   overflow: hidden;
 }
 
-:root body {
+#app {
   height: 100vh;
   overflow: auto;
 }

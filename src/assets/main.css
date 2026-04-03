@@ -6,3 +6,16 @@
   --font-sans: "Noto Sans SC", system-ui;
   --font-mono: "Cascadia Code", "Noto Sans SC", monospace;
 }
+
+:root {
+  overflow: hidden;
+}
+
+:root body {
+  height: 100vh;
+  overflow: auto;
+}
+
+:root {
+  --ui-header-height: 52px;
+}

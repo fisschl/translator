@@ -12,5 +12,3 @@ import AppHeader from "@/components/AppHeader.vue";
     </UMain>
   </UApp>
 </template>
-
-<style module></style>

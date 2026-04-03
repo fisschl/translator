@@ -1,4 +1,3 @@
-import pluginVitest from "@vitest/eslint-plugin";
 import { defineConfigWithVueTs, vueTsConfigs } from "@vue/eslint-config-typescript";
 import skipFormatting from "eslint-config-prettier/flat";
 import pluginOxlint from "eslint-plugin-oxlint";
@@ -8,10 +7,6 @@ import { globalIgnores } from "eslint/config";
 export default defineConfigWithVueTs(
   ...pluginVue.configs["flat/recommended"],
   vueTsConfigs.recommended,
-  {
-    ...pluginVitest.configs.recommended,
-    files: ["src/**/*.spec.ts"],
-  },
   ...pluginOxlint.buildFromOxlintConfigFile(".oxlintrc.json"),
   skipFormatting,
   globalIgnores([

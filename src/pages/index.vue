@@ -19,7 +19,9 @@ const chat = new Chat({
 });
 
 function onSubmit() {
-  chat.sendMessage({ text: input.value });
+  const userInput = input.value.trim();
+  if (!userInput) return;
+  chat.sendMessage({ text: `请帮我翻译以下内容：\n\n${userInput}` });
   input.value = "";
 }
 </script>

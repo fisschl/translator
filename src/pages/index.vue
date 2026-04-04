@@ -14,7 +14,6 @@ import { onMounted, ref } from "vue";
 const { BASE_URL } = import.meta.env;
 
 const HISTORY_KEY = `${BASE_URL}translator-messages`;
-const MAX_HISTORY = 10;
 
 const input = ref("");
 
@@ -23,7 +22,10 @@ const chat = new Chat({
     api: "/api/chat/completions",
   }),
   onFinish: async ({ messages }) => {
-    await setIdbKeyval(HISTORY_KEY, JSON.stringify(messages.slice(-MAX_HISTORY)));
+    // 只保留最后 20 条记录(同时限制内存和本地存储)
+    const recentMessages = messages.slice(-20);
+    chat.messages = recentMessages;
+    await setIdbKeyval(HISTORY_KEY, JSON.stringify(recentMessages));
   },
 });
 

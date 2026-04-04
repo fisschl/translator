@@ -8,7 +8,7 @@ import {
   getToolName,
   DefaultChatTransport,
 } from "ai";
-import { get, set } from "idb-keyval";
+import { get as getIdbKeyval, set as setIdbKeyval } from "idb-keyval";
 import { onMounted, ref } from "vue";
 
 const { BASE_URL } = import.meta.env;
@@ -23,7 +23,7 @@ const chat = new Chat({
     api: "/api/chat/completions",
   }),
   onFinish: async ({ messages }) => {
-    await set(HISTORY_KEY, JSON.stringify(messages.slice(-MAX_HISTORY)));
+    await setIdbKeyval(HISTORY_KEY, JSON.stringify(messages.slice(-MAX_HISTORY)));
   },
 });
 
@@ -33,7 +33,7 @@ const chat = new Chat({
  * @returns 解析后的消息历史；若未存储或解析失败则返回空数组。
  */
 const readHistory = async () => {
-  const raw = await get<string>(HISTORY_KEY);
+  const raw = await getIdbKeyval<string>(HISTORY_KEY);
   if (!raw) return;
   try {
     const parsed = JSON.parse(raw);
@@ -67,15 +67,23 @@ async function onContextMenu(event: MouseEvent) {
   onSubmit();
 }
 
+const scrollToBottom = () => {
+  const app = document.getElementById("app");
+  if (!(app instanceof HTMLElement)) return;
+  app.scrollTo({ top: app.scrollHeight, behavior: "smooth" });
+};
+
 /**
  * 将用户输入的 trimmed 内容发送至翻译 API。
  * 提交后清空输入框。
  */
-function onSubmit() {
+async function onSubmit() {
   const userInput = input.value.trim();
   if (!userInput) return;
   chat.sendMessage({ text: `请帮我翻译以下内容：\n\n${userInput}` });
   input.value = "";
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  scrollToBottom();
 }
 </script>
 
@@ -113,7 +121,7 @@ function onSubmit() {
         </template>
       </template>
     </UChatMessages>
-    <UForm v-if="chat.status === 'ready'" class="sticky bottom-4" @submit="onSubmit">
+    <UForm v-if="chat.status === 'ready'" class="mb-5 relative" @submit="onSubmit">
       <UTextarea
         v-model="input"
         :rows="3"

@@ -27,6 +27,11 @@ const chat = new Chat({
   },
 });
 
+/**
+ * 从 IndexedDB 读取持久化的聊天历史记录。
+ *
+ * @returns 解析后的消息历史；若未存储或解析失败则返回空数组。
+ */
 const readHistory = async () => {
   const raw = await get<string>(HISTORY_KEY);
   if (!raw) return;
@@ -39,11 +44,33 @@ const readHistory = async () => {
   }
 };
 
+/**
+ * 生命周期钩子，在组件挂载时从 IndexedDB 恢复聊天历史记录。
+ */
 onMounted(async () => {
   const history = await readHistory();
   if (history?.length) chat.messages = history;
 });
 
+/**
+ * 处理文本框上的右键菜单事件。
+ * 当文本框为空时，读取系统剪贴板内容并粘贴，随后自动提交表单。
+ *
+ * @param event - 右键点击触发的鼠标事件。
+ */
+async function onContextMenu(event: MouseEvent) {
+  if (input.value.trim()) return;
+  event.preventDefault();
+  const text = await navigator.clipboard.readText();
+  if (!text) return;
+  input.value = text;
+  onSubmit();
+}
+
+/**
+ * 将用户输入的 trimmed 内容发送至翻译 API。
+ * 提交后清空输入框。
+ */
 function onSubmit() {
   const userInput = input.value.trim();
   if (!userInput) return;
@@ -89,11 +116,14 @@ function onSubmit() {
     <UForm v-if="chat.status === 'ready'" class="sticky bottom-4" @submit="onSubmit">
       <UTextarea
         v-model="input"
-        :rows="10"
+        :rows="3"
+        size="lg"
         autoresize
         autofocus
         placeholder="请输入要翻译的内容..."
         class="w-full"
+        @keydown.enter.prevent="onSubmit"
+        @contextmenu="onContextMenu"
       />
       <UButton type="submit" icon="i-lucide-send" class="absolute bottom-2 right-2" />
     </UForm>

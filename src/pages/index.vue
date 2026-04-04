@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Chat } from "@ai-sdk/vue";
+import { isToolStreaming } from "@nuxt/ui/utils/ai";
 import {
   isReasoningUIPart,
   isTextUIPart,
@@ -6,9 +8,13 @@ import {
   getToolName,
   DefaultChatTransport,
 } from "ai";
-import { Chat } from "@ai-sdk/vue";
-import { isToolStreaming } from "@nuxt/ui/utils/ai";
-import { ref } from "vue";
+import { get, set } from "idb-keyval";
+import { onMounted, ref } from "vue";
+
+const { BASE_URL } = import.meta.env;
+
+const HISTORY_KEY = `${BASE_URL}translator-messages`;
+const MAX_HISTORY = 10;
 
 const input = ref("");
 
@@ -16,6 +22,26 @@ const chat = new Chat({
   transport: new DefaultChatTransport({
     api: "/api/chat/completions",
   }),
+  onFinish: async ({ messages }) => {
+    await set(HISTORY_KEY, JSON.stringify(messages.slice(-MAX_HISTORY)));
+  },
+});
+
+const readHistory = async () => {
+  const raw = await get<string>(HISTORY_KEY);
+  if (!raw) return;
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed;
+  } catch {
+    return [];
+  }
+};
+
+onMounted(async () => {
+  const history = await readHistory();
+  if (history?.length) chat.messages = history;
 });
 
 function onSubmit() {
@@ -60,7 +86,7 @@ function onSubmit() {
         </template>
       </template>
     </UChatMessages>
-    <UForm class="sticky bottom-4" @submit="onSubmit">
+    <UForm v-if="chat.status === 'ready'" class="sticky bottom-4" @submit="onSubmit">
       <UTextarea
         v-model="input"
         :rows="10"
@@ -69,18 +95,13 @@ function onSubmit() {
         placeholder="请输入要翻译的内容..."
         class="w-full"
       />
-      <UButton
-        type="submit"
-        icon="i-lucide-send"
-        :loading="chat.status === 'streaming'"
-        class="absolute bottom-2 right-2"
-      />
+      <UButton type="submit" icon="i-lucide-send" class="absolute bottom-2 right-2" />
     </UForm>
   </UContainer>
 </template>
 
 <style module>
 .messages {
-  min-height: calc(100vh - 180px);
+  min-height: calc(100vh - 300px);
 }
 </style>

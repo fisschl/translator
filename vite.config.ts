@@ -30,8 +30,8 @@ export default defineConfig({
   server: {
     proxy: {
       "/api/chat/completions": {
-        // target: "https://bronya.world",
-        target: "http://localhost:3020",
+        target: "https://bronya.world",
+        changeOrigin: true,
       },
     },
   },

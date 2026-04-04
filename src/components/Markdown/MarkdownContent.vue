@@ -3,12 +3,12 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import remarkParse from "remark-parse";
 import remarkStringify from "remark-stringify";
+import remend from "remend";
 import { unified } from "unified";
 import { computed } from "vue";
 import MarkdownBlock from "./MarkdownBlock.vue";
-import type { MarkedVuePlugin } from "./plugin";
 import "katex/dist/katex.min.css";
-import remend from "remend";
+import type { MarkedVuePlugin } from "./plugin";
 import "./markdown.css";
 
 const props = defineProps<{

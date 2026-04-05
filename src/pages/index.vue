@@ -84,11 +84,11 @@ async function onSubmit() {
 </script>
 
 <template>
-  <ul class="flex flex-col">
+  <ul class="flex flex-col flex-1 gap-6 py-6 px-6">
     <li
       v-for="message in chat.messages"
       :key="message.id"
-      class="my-4 flex gap-3 flex-col"
+      class="flex gap-3 flex-col"
       :class="{
         'self-end max-w-4/5': message.role === 'user',
       }"
@@ -103,7 +103,10 @@ async function onSubmit() {
         </div>
         <template v-else-if="isTextUIPart(part)">
           <MarkdownContent v-if="message.role === 'assistant'" :content="part.text" />
-          <p v-else-if="message.role === 'user'" class="whitespace-pre-wrap">
+          <p
+            v-else-if="message.role === 'user'"
+            class="whitespace-pre-wrap bg-elevated/50 py-3 px-4 rounded-lg"
+          >
             {{ part.text }}
           </p>
         </template>
@@ -112,7 +115,7 @@ async function onSubmit() {
   </ul>
   <UChatPrompt
     v-model="input"
-    class="mb-5"
+    class="mb-4 mx-6 w-auto sticky bottom-4"
     :error="chat.error"
     placeholder="请输入要翻译的内容"
     @contextmenu="onContextMenu"
@@ -121,9 +124,3 @@ async function onSubmit() {
     <UChatPromptSubmit :status="chat.status" @stop="chat.stop()" @reload="chat.regenerate()" />
   </UChatPrompt>
 </template>
-
-<style module>
-.messages {
-  min-height: calc(100vh - 300px);
-}
-</style>

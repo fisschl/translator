@@ -84,8 +84,15 @@ async function onSubmit() {
 </script>
 
 <template>
-  <UContainer>
-    <div v-for="message in chat.messages" :key="message.id" class="my-4 flex gap-3 flex-col">
+  <ul class="flex flex-col">
+    <li
+      v-for="message in chat.messages"
+      :key="message.id"
+      class="my-4 flex gap-3 flex-col"
+      :class="{
+        'self-end max-w-4/5': message.role === 'user',
+      }"
+    >
       <template v-for="(part, index) in message.parts" :key="index">
         <div
           v-if="isReasoningUIPart(part) && part.state === 'streaming'"
@@ -96,26 +103,23 @@ async function onSubmit() {
         </div>
         <template v-else-if="isTextUIPart(part)">
           <MarkdownContent v-if="message.role === 'assistant'" :content="part.text" />
-          <p
-            v-else-if="message.role === 'user'"
-            class="whitespace-pre-wrap self-end max-w-4/5"
-          >
+          <p v-else-if="message.role === 'user'" class="whitespace-pre-wrap">
             {{ part.text }}
           </p>
         </template>
       </template>
-    </div>
-    <UChatPrompt
-      v-model="input"
-      class="mb-5"
-      :error="chat.error"
-      placeholder="请输入要翻译的内容"
-      @contextmenu="onContextMenu"
-      @submit="onSubmit"
-    >
-      <UChatPromptSubmit :status="chat.status" @stop="chat.stop()" @reload="chat.regenerate()" />
-    </UChatPrompt>
-  </UContainer>
+    </li>
+  </ul>
+  <UChatPrompt
+    v-model="input"
+    class="mb-5"
+    :error="chat.error"
+    placeholder="请输入要翻译的内容"
+    @contextmenu="onContextMenu"
+    @submit="onSubmit"
+  >
+    <UChatPromptSubmit :status="chat.status" @stop="chat.stop()" @reload="chat.regenerate()" />
+  </UChatPrompt>
 </template>
 
 <style module>

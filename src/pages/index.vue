@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { useChatScroll } from "@/components/Markdown/scroll";
 import ReasoningIcon from "@/components/ReasoningIcon.vue";
 import { Chat } from "@ai-sdk/vue";
 import { isReasoningUIPart, isTextUIPart, DefaultChatTransport } from "ai";
 import { get as getIdbKeyval, set as setIdbKeyval } from "idb-keyval";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, useTemplateRef } from "vue";
 
 const { BASE_URL } = import.meta.env;
 
@@ -46,9 +47,6 @@ const readHistory = async () => {
 onMounted(async () => {
   const history = await readHistory();
   if (history?.length) chat.messages = history;
-  const timer = setInterval(() => scrollToBottom("instant"), 60);
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  clearInterval(timer);
 });
 
 /**
@@ -66,11 +64,16 @@ async function onContextMenu(event: MouseEvent) {
   onSubmit();
 }
 
-const scrollToBottom = (behavior?: "smooth" | "instant") => {
-  const app = document.getElementById("main");
-  if (!(app instanceof HTMLElement)) return;
-  app.scrollTo({ top: app.scrollHeight, behavior: behavior || "smooth" });
-};
+const listTarget = useTemplateRef("list-target");
+const scrollTarget = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const main = document.getElementById("main");
+  if (!(main instanceof HTMLElement)) return;
+  scrollTarget.value = main;
+});
+
+const { scrollToBottom } = useChatScroll({ listElement: listTarget, scrollTarget });
 
 /**
  * 将用户输入的 trimmed 内容发送至翻译 API。
@@ -81,13 +84,13 @@ async function onSubmit() {
   if (!userInput) return;
   chat.sendMessage({ text: `请帮我翻译以下内容：\n\n${userInput}` });
   input.value = "";
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  scrollToBottom();
+  await new Promise((resolve) => setTimeout(resolve, 120));
+  scrollToBottom({ behavior: "smooth" });
 }
 </script>
 
 <template>
-  <ul class="flex flex-col flex-1 gap-6 py-6 px-6">
+  <ul ref="list-target" class="flex flex-col flex-1 gap-10 py-8 px-4">
     <li
       v-for="message in chat.messages"
       :key="message.id"
@@ -118,9 +121,9 @@ async function onSubmit() {
   </ul>
   <UChatPrompt
     v-model="input"
-    class="mb-4 mx-6 w-auto sticky bottom-4"
+    class="mb-4 mx-4 w-auto sticky bottom-4"
     :error="chat.error"
-    placeholder="请输入要翻译的内容"
+    placeholder="请输入要翻译的内容（单击右键快速翻译复制的内容）"
     @contextmenu="onContextMenu"
     @submit="onSubmit"
   >

@@ -14,7 +14,8 @@ body {
 
 #app {
   height: 100vh;
-  overflow: auto;
+  display: flex;
+  min-width: 0;
 }
 
 :root {

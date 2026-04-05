@@ -7,7 +7,7 @@ import AppSidebar from "@/components/AppSidebar.vue";
 <template>
   <UApp :locale="zh_cn">
     <AppSidebar />
-    <UMain class="flex-1 min-w-0 overflow-auto flex flex-col">
+    <UMain id="main" class="flex-1 min-w-0 overflow-auto flex flex-col">
       <RouterView />
     </UMain>
   </UApp>

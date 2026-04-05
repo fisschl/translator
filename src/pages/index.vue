@@ -46,6 +46,9 @@ const readHistory = async () => {
 onMounted(async () => {
   const history = await readHistory();
   if (history?.length) chat.messages = history;
+  const timer = setInterval(() => scrollToBottom("instant"), 60);
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  clearInterval(timer);
 });
 
 /**
@@ -63,10 +66,10 @@ async function onContextMenu(event: MouseEvent) {
   onSubmit();
 }
 
-const scrollToBottom = () => {
-  const app = document.getElementById("app");
+const scrollToBottom = (behavior?: "smooth" | "instant") => {
+  const app = document.getElementById("main");
   if (!(app instanceof HTMLElement)) return;
-  app.scrollTo({ top: app.scrollHeight, behavior: "smooth" });
+  app.scrollTo({ top: app.scrollHeight, behavior: behavior || "smooth" });
 };
 
 /**

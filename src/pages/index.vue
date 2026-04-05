@@ -1,13 +1,7 @@
 <script setup lang="ts">
+import ReasoningIcon from "@/components/ReasoningIcon.vue";
 import { Chat } from "@ai-sdk/vue";
-import { isToolStreaming } from "@nuxt/ui/utils/ai";
-import {
-  isReasoningUIPart,
-  isTextUIPart,
-  isToolUIPart,
-  getToolName,
-  DefaultChatTransport,
-} from "ai";
+import { isReasoningUIPart, isTextUIPart, DefaultChatTransport } from "ai";
 import { get as getIdbKeyval, set as setIdbKeyval } from "idb-keyval";
 import { onMounted, ref } from "vue";
 
@@ -91,52 +85,36 @@ async function onSubmit() {
 
 <template>
   <UContainer>
-    <UChatMessages
-      :messages="chat.messages"
-      :status="chat.status"
-      :class="$style.messages"
-      class="py-4"
-      should-auto-scroll
-      should-scroll-to-bottom
-    >
-      <template #content="{ message }">
-        <template v-for="(part, index) in message.parts" :key="index">
-          <UChatReasoning
-            v-if="isReasoningUIPart(part)"
-            icon="i-lucide-brain"
-            :text="part.text"
-            :streaming="part.state === 'streaming'"
+    <div v-for="message in chat.messages" :key="message.id" class="my-4 flex gap-3 flex-col">
+      <template v-for="(part, index) in message.parts" :key="index">
+        <div
+          v-if="isReasoningUIPart(part) && part.state === 'streaming'"
+          class="flex items-center gap-2 text-muted"
+        >
+          <ReasoningIcon />
+          <UChatShimmer text="思考中" class="text-sm" />
+        </div>
+        <template v-else-if="isTextUIPart(part)">
+          <MarkdownContent v-if="message.role === 'assistant'" :content="part.text" />
+          <p
+            v-else-if="message.role === 'user'"
+            class="whitespace-pre-wrap self-end max-w-4/5"
           >
-            <p class="whitespace-pre-wrap">{{ part.text }}</p>
-          </UChatReasoning>
-          <UChatTool
-            v-else-if="isToolUIPart(part)"
-            :text="getToolName(part)"
-            :streaming="isToolStreaming(part)"
-          />
-          <template v-else-if="isTextUIPart(part)">
-            <MarkdownContent v-if="message.role === 'assistant'" :content="part.text" />
-            <p v-else-if="message.role === 'user'" class="whitespace-pre-wrap">
-              {{ part.text }}
-            </p>
-          </template>
+            {{ part.text }}
+          </p>
         </template>
       </template>
-    </UChatMessages>
-    <UForm v-if="chat.status === 'ready'" class="mb-5 relative" @submit="onSubmit">
-      <UTextarea
-        v-model="input"
-        :rows="3"
-        size="lg"
-        autoresize
-        autofocus
-        placeholder="请输入要翻译的内容..."
-        class="w-full"
-        @keydown.enter.prevent="onSubmit"
-        @contextmenu="onContextMenu"
-      />
-      <UButton type="submit" icon="i-lucide-send" class="absolute bottom-2 right-2" />
-    </UForm>
+    </div>
+    <UChatPrompt
+      v-model="input"
+      class="mb-5"
+      :error="chat.error"
+      placeholder="请输入要翻译的内容"
+      @contextmenu="onContextMenu"
+      @submit="onSubmit"
+    >
+      <UChatPromptSubmit :status="chat.status" @stop="chat.stop()" @reload="chat.regenerate()" />
+    </UChatPrompt>
   </UContainer>
 </template>
 

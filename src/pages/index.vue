@@ -2,7 +2,7 @@
 import { Chat } from "@ai-sdk/vue";
 import { isReasoningUIPart, isTextUIPart, DefaultChatTransport } from "ai";
 import { get as getIdbKeyval, set as setIdbKeyval } from "idb-keyval";
-import { onMounted, ref, useTemplateRef } from "vue";
+import { computed, onMounted, ref, useTemplateRef } from "vue";
 import { useChatScroll } from "@/components/Markdown/scroll";
 import ReasoningIcon from "@/components/ReasoningIcon.vue";
 
@@ -94,6 +94,30 @@ async function onSubmit() {
   await new Promise((resolve) => setTimeout(resolve, 120));
   scrollToBottom({ behavior: "smooth" });
 }
+
+function onInputKeydown(event: KeyboardEvent) {
+  if (event.key !== "Enter" || event.shiftKey || event.isComposing) return;
+  event.preventDefault();
+  onSubmit();
+}
+
+function onSubmitButtonClick() {
+  if (chat.status === "streaming" || chat.status === "submitted") {
+    chat.stop();
+    return;
+  }
+  if (chat.status === "error") {
+    chat.regenerate();
+    return;
+  }
+  onSubmit();
+}
+
+const submitButtonLabel = computed(() => {
+  if (chat.status === "streaming" || chat.status === "submitted") return "停止";
+  if (chat.status === "error") return "重试";
+  return "提交";
+});
 </script>
 
 <template>
@@ -126,14 +150,24 @@ async function onSubmit() {
       </template>
     </li>
   </ul>
-  <UChatPrompt
-    v-model="input"
-    class="mb-4 mx-4 w-auto sticky bottom-4"
-    :error="chat.error"
-    placeholder="请输入要翻译的内容（单击右键快速翻译复制的内容）"
-    @contextmenu="onContextMenu"
-    @submit="onSubmit"
-  >
-    <UChatPromptSubmit :status="chat.status" @stop="chat.stop()" @reload="chat.regenerate()" />
-  </UChatPrompt>
+  <div class="mb-4 mx-4 w-auto sticky bottom-4">
+    <UTextarea
+      v-model="input"
+      :rows="4"
+      :maxrows="25"
+      autoresize
+      size="lg"
+      class="w-full"
+      placeholder="请输入要翻译的内容（单击右键快速翻译复制的内容）"
+      @contextmenu="onContextMenu"
+      @keydown="onInputKeydown"
+    />
+    <p v-if="chat.error" class="mt-2 text-sm text-error">{{ chat.error.message }}</p>
+    <div class="mt-2 flex">
+      <p class="flex-1"></p>
+      <UButton color="primary" icon="i-lucide-send" @click="onSubmitButtonClick">
+        {{ submitButtonLabel }}
+      </UButton>
+    </div>
+  </div>
 </template>

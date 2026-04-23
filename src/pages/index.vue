@@ -1,14 +1,21 @@
 <script setup lang="ts">
-import { useChatScroll } from "@/components/Markdown/scroll";
-import ReasoningIcon from "@/components/ReasoningIcon.vue";
 import { Chat } from "@ai-sdk/vue";
 import { isReasoningUIPart, isTextUIPart, DefaultChatTransport } from "ai";
 import { get as getIdbKeyval, set as setIdbKeyval } from "idb-keyval";
 import { onMounted, ref, useTemplateRef } from "vue";
+import { useChatScroll } from "@/components/Markdown/scroll";
+import ReasoningIcon from "@/components/ReasoningIcon.vue";
 
 const { BASE_URL } = import.meta.env;
 
 const HISTORY_KEY = `${BASE_URL}translator-messages`;
+const MAX_HISTORY_COUNT = 30;
+const RETAIN_HISTORY_COUNT = 4;
+
+const limitHistory = <T>(messages: T[]) => {
+  if (messages.length > MAX_HISTORY_COUNT) return messages.slice(-RETAIN_HISTORY_COUNT);
+  return messages;
+};
 
 const input = ref("");
 
@@ -17,10 +24,9 @@ const chat = new Chat({
     api: "/api/chat/completions",
   }),
   onFinish: async ({ messages }) => {
-    // 只保留最后 20 条记录(同时限制内存和本地存储)
-    const recentMessages = messages.slice(-20);
-    chat.messages = recentMessages;
-    await setIdbKeyval(HISTORY_KEY, JSON.stringify(recentMessages));
+    const limitedMessages = limitHistory(messages);
+    chat.messages = limitedMessages;
+    await setIdbKeyval(HISTORY_KEY, JSON.stringify(limitedMessages));
   },
 });
 
@@ -46,7 +52,8 @@ const readHistory = async () => {
  */
 onMounted(async () => {
   const history = await readHistory();
-  if (history?.length) chat.messages = history;
+  if (!history?.length) return;
+  chat.messages = history;
 });
 
 /**

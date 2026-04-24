@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import { useIntervalFn } from "@vueuse/core";
+import { ref } from "vue";
 
 const patterns = [
   [[0], [1], [2], [3], [7], [11], [15], [14], [13], [12], [8], [4], [5], [6], [10], [9]],

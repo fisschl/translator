@@ -25,6 +25,7 @@
     "monaco-editor": "^0.55.1",
     "oxfmt": "^0.46.0",
     "p-limit": "^7.3.0",
+    "prettier": "^3.8.3",
     "rehype-katex": "^7.0.1",
     "remark-gfm": "^4.0.1",
     "remark-math": "^6.0.0",

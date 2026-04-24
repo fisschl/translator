@@ -15,5 +15,8 @@
   },
   "categories": {
     "correctness": "error"
+  },
+  "rules": {
+    "import/default": "off"
   }
 }

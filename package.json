@@ -22,6 +22,8 @@
     "hast-util-to-string": "^3.0.1",
     "idb-keyval": "^6.2.2",
     "katex": "^0.16.45",
+    "monaco-editor": "^0.55.1",
+    "oxfmt": "^0.46.0",
     "p-limit": "^7.3.0",
     "rehype-katex": "^7.0.1",
     "remark-gfm": "^4.0.1",
@@ -46,7 +48,6 @@
     "eslint-plugin-oxlint": "^1.61.0",
     "eslint-plugin-vue": "^10.9.0",
     "jiti": "^2.6.1",
-    "oxfmt": "^0.46.0",
     "oxlint": "^1.61.0",
     "vue-tsc": "^3.2.7"
   }

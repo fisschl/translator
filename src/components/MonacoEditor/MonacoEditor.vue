@@ -50,6 +50,7 @@ watch(container, (el) => {
     value: props.defaultCode,
     language: props.language,
     theme: theme.value,
+    fontFamily: '"Cascadia Code", "Noto Sans SC", monospace',
     fontSize: 15,
   });
 

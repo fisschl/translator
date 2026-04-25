@@ -1,49 +1,31 @@
 <script setup lang="ts">
 import { toRef, useColorMode } from "@vueuse/core";
 import { editor } from "monaco-editor";
-import EditorWorker from "monaco-editor/esm/vs/editor/editor.worker.js?worker";
-import CssWorker from "monaco-editor/esm/vs/language/css/css.worker.js?worker";
-import HtmlWorker from "monaco-editor/esm/vs/language/html/html.worker.js?worker";
-import JsonWorker from "monaco-editor/esm/vs/language/json/json.worker.js?worker";
-import TypeScriptWorker from "monaco-editor/esm/vs/language/typescript/ts.worker.js?worker";
-import { computed, onWatcherCleanup, shallowRef, useTemplateRef, watch } from "vue";
-import { format as formatCode } from "./format";
+import {
+  computed,
+  onWatcherCleanup,
+  shallowRef,
+  useTemplateRef,
+  watch,
+} from "vue";
+import { registerPrettierFormatters } from "./format";
+import { setupMonacoEnvironment } from "./language";
 
 const props = defineProps<{
   defaultCode?: string;
-  language?: string;
+  language: string;
+}>();
+
+const emit = defineEmits<{
+  changeCode: [code: string];
 }>();
 
 const colorMode = useColorMode();
 const container = useTemplateRef("container-element");
 const theme = computed(() => (colorMode.value === "dark" ? "vs-dark" : "vs"));
 
-const setupMonacoEnvironment = () => {
-  if (globalThis.MonacoEnvironment) return;
-  globalThis.MonacoEnvironment = {
-    getWorker(workerId, label) {
-      switch (label) {
-        case "json":
-          return new JsonWorker({ name: label });
-        case "css":
-        case "scss":
-        case "less":
-          return new CssWorker({ name: label });
-        case "html":
-        case "handlebars":
-        case "razor":
-          return new HtmlWorker({ name: label });
-        case "typescript":
-        case "javascript":
-          return new TypeScriptWorker({ name: label });
-        default:
-          return new EditorWorker({ name: label });
-      }
-    },
-  };
-};
-
 setupMonacoEnvironment();
+registerPrettierFormatters();
 
 const instance = shallowRef<editor.IStandaloneCodeEditor>();
 const language = toRef(props, "language");
@@ -65,21 +47,16 @@ watch(container, (element) => {
     fontSize: 15,
   });
   instance.value = editorInstance;
+  editorInstance.onDidChangeModelContent(() => {
+    emit("changeCode", editorInstance.getValue());
+  });
   onWatcherCleanup(() => editorInstance.dispose());
 });
 
 watch(theme, (value) => editor.setTheme(value));
 
-const format = async () => {
-  const editorInstance = instance.value;
-  if (!editorInstance || !props.language) return;
-  const formatted = await formatCode(editorInstance.getValue(), props.language);
-  editorInstance.setValue(formatted);
-};
-
 defineExpose({
   instance,
-  format,
 });
 </script>
 

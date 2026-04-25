@@ -12,3 +12,4 @@ components.d.ts
 .playwright-cli
 .cache
 .opencode
+.cursor

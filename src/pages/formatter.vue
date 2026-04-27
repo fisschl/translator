@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import type { SelectMenuItem } from "@nuxt/ui";
 import { useDebounceFn, whenever } from "@vueuse/core";
 import { get as getIdb, set as setIdb } from "idb-keyval";
 import { computed, ref, useTemplateRef } from "vue";
 import MonacoEditor from "@/components/MonacoEditor/MonacoEditor.vue";
 
-const languages: SelectMenuItem[] = [
+const languages = [
   { label: "JSON", value: "json" },
   { label: "JavaScript", value: "javascript" },
   { label: "TypeScript", value: "typescript" },

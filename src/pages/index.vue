@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Chat } from "@ai-sdk/vue";
-import type { SelectMenuItem } from "@nuxt/ui";
 import { isReasoningUIPart, isTextUIPart, DefaultChatTransport } from "ai";
 import { get as getIdbKeyval, set as setIdbKeyval } from "idb-keyval";
 import { computed, onMounted, ref, useTemplateRef } from "vue";
@@ -10,6 +9,8 @@ import ReasoningIcon from "@/components/ReasoningIcon.vue";
 const { BASE_URL } = import.meta.env;
 
 const HISTORY_KEY = `${BASE_URL}translator-messages`;
+const MODEL_KEY = `${BASE_URL}translator-model`;
+const THINKING_KEY = `${BASE_URL}translator-thinking-enabled`;
 const MAX_HISTORY_COUNT = 30;
 const RETAIN_HISTORY_COUNT = 4;
 
@@ -22,7 +23,7 @@ const input = ref("");
 const model = ref("deepseek-v4-flash");
 const thinkingEnabled = ref(false);
 
-const models: SelectMenuItem[] = [
+const models = [
   { value: "deepseek-v4-flash", label: "DeepSeek V4 Flash" },
   { value: "deepseek-v4-pro", label: "DeepSeek V4 Pro" },
 ];
@@ -63,9 +64,13 @@ const readHistory = async () => {
  * 生命周期钩子，在组件挂载时从 IndexedDB 恢复聊天历史记录。
  */
 onMounted(async () => {
+  const persistedModel = await getIdbKeyval<string>(MODEL_KEY);
+  const isSupportedModel = models.some((item) => item.value === persistedModel);
+  if (persistedModel && isSupportedModel) model.value = persistedModel;
+  const persistedThinking = await getIdbKeyval<boolean>(THINKING_KEY);
+  if (typeof persistedThinking === "boolean") thinkingEnabled.value = persistedThinking;
   const history = await readHistory();
-  if (!history?.length) return;
-  chat.messages = history;
+  if (history?.length) chat.messages = history;
 });
 
 /**
@@ -105,6 +110,8 @@ async function onSubmit() {
   input.value = "";
   await new Promise((resolve) => setTimeout(resolve, 120));
   scrollToBottom({ behavior: "smooth" });
+  await setIdbKeyval(MODEL_KEY, model.value);
+  await setIdbKeyval(THINKING_KEY, thinkingEnabled.value);
 }
 
 function onInputKeydown(event: KeyboardEvent) {

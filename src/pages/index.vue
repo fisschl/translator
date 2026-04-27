@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Chat } from "@ai-sdk/vue";
+import type { SelectMenuItem } from "@nuxt/ui";
 import { isReasoningUIPart, isTextUIPart, DefaultChatTransport } from "ai";
 import { get as getIdbKeyval, set as setIdbKeyval } from "idb-keyval";
 import { computed, onMounted, ref, useTemplateRef } from "vue";
@@ -18,10 +19,21 @@ const limitHistory = <T>(messages: T[]) => {
 };
 
 const input = ref("");
+const model = ref("deepseek-v4-flash");
+const thinkingEnabled = ref(false);
+
+const models: SelectMenuItem[] = [
+  { value: "deepseek-v4-flash", label: "DeepSeek V4 Flash" },
+  { value: "deepseek-v4-pro", label: "DeepSeek V4 Pro" },
+];
 
 const chat = new Chat({
   transport: new DefaultChatTransport({
     api: "/api/chat/completions",
+    body: () => ({
+      model: model.value,
+      thinking: { type: thinkingEnabled.value ? "enabled" : "disabled" },
+    }),
   }),
   onFinish: async ({ messages }) => {
     const limitedMessages = limitHistory(messages);
@@ -163,8 +175,11 @@ const submitButtonLabel = computed(() => {
       @keydown="onInputKeydown"
     />
     <p v-if="chat.error" class="mt-2 text-sm text-error">{{ chat.error.message }}</p>
-    <div class="mt-2 flex">
-      <p class="flex-1"></p>
+    <div class="mt-2 flex items-center gap-4">
+      <USelect v-model="model" :items="models" class="w-44" />
+      <div class="flex-1 flex items-center gap-4">
+        <USwitch v-model="thinkingEnabled" label="深度思考" />
+      </div>
       <UButton color="primary" icon="i-lucide-send" @click="onSubmitButtonClick">
         {{ submitButtonLabel }}
       </UButton>

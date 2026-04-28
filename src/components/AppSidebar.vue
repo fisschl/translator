@@ -37,6 +37,7 @@ const tooltipContent: Partial<TooltipProps["content"]> = { side: "right" };
         :text="item.label"
         :delay-duration="100"
         :content="tooltipContent"
+        arrow
       >
         <UButton
           :to="item.to"
@@ -46,6 +47,8 @@ const tooltipContent: Partial<TooltipProps["content"]> = { side: "right" };
         />
       </UTooltip>
     </div>
-    <UColorModeButton variant="ghost" color="neutral" />
+    <UTooltip text="切换主题" arrow :delay-duration="100" :content="tooltipContent">
+      <UColorModeButton variant="ghost" color="neutral" />
+    </UTooltip>
   </aside>
 </template>

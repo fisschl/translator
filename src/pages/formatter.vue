@@ -46,12 +46,7 @@ const onFormatClick = async () => {
   <section class="flex flex-col flex-1 min-h-0">
     <div class="px-2 pt-2 pb-2">
       <div class="flex items-center gap-2">
-        <USelectMenu
-          v-model="language"
-          value-key="value"
-          :items="languages"
-          class="w-48"
-        />
+        <USelectMenu v-model="language" value-key="value" :items="languages" class="w-48" />
         <UButton
           icon="i-lucide-brush"
           color="neutral"

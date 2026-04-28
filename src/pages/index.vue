@@ -97,7 +97,10 @@ onMounted(() => {
   scrollTarget.value = main;
 });
 
-const { scrollToBottom } = useChatScroll({ listElement: listTarget, scrollTarget });
+const { scrollToBottom } = useChatScroll({
+  listElement: listTarget,
+  scrollTarget,
+});
 
 /**
  * 将用户输入的 trimmed 内容发送至翻译 API。
@@ -169,7 +172,7 @@ const submitButtonLabel = computed(() => {
       </template>
     </li>
   </ul>
-  <div class="mb-4 mx-4 w-auto sticky bottom-4">
+  <div class="pb-4 px-4 w-auto sticky bottom-0 bg-white dark:bg-old-neutral-950">
     <UTextarea
       v-model="input"
       :rows="4"
@@ -181,7 +184,9 @@ const submitButtonLabel = computed(() => {
       @contextmenu="onContextMenu"
       @keydown="onInputKeydown"
     />
-    <p v-if="chat.error" class="mt-2 text-sm text-error">{{ chat.error.message }}</p>
+    <p v-if="chat.error" class="mt-2 text-sm text-error">
+      {{ chat.error.message }}
+    </p>
     <div class="mt-2 flex items-center gap-4">
       <USelect v-model="model" :items="models" class="w-44" />
       <div class="flex-1 flex items-center gap-4">

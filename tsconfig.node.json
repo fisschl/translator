@@ -4,8 +4,6 @@
     "vite.config.*",
     "vitest.config.*",
     "playwright.config.*",
-    "mock.config.ts",
-    "mock/server/**/*.ts",
     "eslint.config.*",
     "plugins/**/*"
   ],

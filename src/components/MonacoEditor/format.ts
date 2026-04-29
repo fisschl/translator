@@ -8,24 +8,20 @@ const formatterDisposables = new Map<string, IDisposable>();
 const defaultImport = <T>(module: Promise<{ default: T }>) =>
   module.then((module) => module.default);
 
-const pluginBabel = defaultImport(import("prettier/plugins/babel"));
-const pluginEstree = defaultImport(import("prettier/plugins/estree"));
-const pluginTypescript = defaultImport(import("prettier/plugins/typescript"));
-const pluginPostcss = defaultImport(import("prettier/plugins/postcss"));
-const pluginHtml = defaultImport(import("prettier/plugins/html"));
+const pluginLoaders: Record<string, () => Promise<Plugin>> = {
+  babel: () => defaultImport(import("prettier/plugins/babel")),
+  estree: () => defaultImport(import("prettier/plugins/estree")),
+  typescript: () => defaultImport(import("prettier/plugins/typescript")),
+  postcss: () => defaultImport(import("prettier/plugins/postcss")),
+  html: () => defaultImport(import("prettier/plugins/html")),
+};
 
-const pluginsByParser: Record<string, Promise<Plugin>[]> = {
-  json: [pluginBabel, pluginEstree],
-  babel: [pluginBabel, pluginEstree],
-  typescript: [pluginTypescript, pluginEstree],
-  css: [pluginPostcss],
-  html: [
-    pluginHtml,
-    pluginPostcss,
-    pluginBabel,
-    pluginEstree,
-    pluginTypescript,
-  ],
+const pluginsByParser: Record<string, string[]> = {
+  json: ["babel", "estree"],
+  babel: ["babel", "estree"],
+  typescript: ["typescript", "estree"],
+  css: ["postcss"],
+  html: ["html", "postcss", "babel", "estree", "typescript"],
 };
 
 const toPrettierParser: Record<string, string> = {
@@ -62,13 +58,13 @@ export const registerPrettierFormatters = () => {
       const parser = toPrettierParser[languageId];
       if (!parser) return code;
 
-      const pluginPromises = pluginsByParser[parser];
-      if (!pluginPromises) return code;
+      const pluginNames = pluginsByParser[parser];
+      if (!pluginNames) return code;
 
       try {
         return await prettier.format(code, {
           parser,
-          plugins: await Promise.all(pluginPromises),
+          plugins: await Promise.all(pluginNames.map((name) => pluginLoaders[name]())),
         });
       } catch {
         return code;

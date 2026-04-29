@@ -1,29 +1,38 @@
-import EditorWorker from "monaco-editor/esm/vs/editor/editor.worker.js?worker";
-import CssWorker from "monaco-editor/esm/vs/language/css/css.worker.js?worker";
-import HtmlWorker from "monaco-editor/esm/vs/language/html/html.worker.js?worker";
-import JsonWorker from "monaco-editor/esm/vs/language/json/json.worker.js?worker";
-import TypeScriptWorker from "monaco-editor/esm/vs/language/typescript/ts.worker.js?worker";
-
 export const setupMonacoEnvironment = () => {
   if (globalThis.MonacoEnvironment) return;
   globalThis.MonacoEnvironment = {
     getWorker(workerId, label) {
       switch (label) {
         case "json":
-          return new JsonWorker({ name: label });
+          return new Worker(
+            new URL("monaco-editor/esm/vs/language/json/json.worker.js", import.meta.url),
+            { name: label, type: "module" },
+          );
         case "css":
         case "scss":
         case "less":
-          return new CssWorker({ name: label });
+          return new Worker(
+            new URL("monaco-editor/esm/vs/language/css/css.worker.js", import.meta.url),
+            { name: label, type: "module" },
+          );
         case "html":
         case "handlebars":
         case "razor":
-          return new HtmlWorker({ name: label });
+          return new Worker(
+            new URL("monaco-editor/esm/vs/language/html/html.worker.js", import.meta.url),
+            { name: label, type: "module" },
+          );
         case "typescript":
         case "javascript":
-          return new TypeScriptWorker({ name: label });
+          return new Worker(
+            new URL("monaco-editor/esm/vs/language/typescript/ts.worker.js", import.meta.url),
+            { name: label, type: "module" },
+          );
         default:
-          return new EditorWorker({ name: label });
+          return new Worker(
+            new URL("monaco-editor/esm/vs/editor/editor.worker.js", import.meta.url),
+            { name: label, type: "module" },
+          );
       }
     },
   };

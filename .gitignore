@@ -13,3 +13,5 @@ components.d.ts
 .cache
 .opencode
 .cursor
+.env
+.env.*

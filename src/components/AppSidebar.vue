@@ -14,12 +14,6 @@ const items = computed<NavigationMenuItem[]>(() => {
       to: "/",
       active: path === "/",
     },
-    {
-      label: "JSON 格式化",
-      icon: "i-lucide-braces",
-      to: "/formatter",
-      active: path === "/formatter",
-    },
   ];
 });
 

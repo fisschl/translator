@@ -1,8 +1,8 @@
 import { defineHandler } from "nitro";
 
-export default defineHandler(() => {
-  return new Response(
-    `data: {"type":"start"}
+const chatResponse = `
+
+data: {"type":"start"}
 
 data: {"type":"start-step"}
 
@@ -20,15 +20,16 @@ data: {"type":"finish","finishReason":"stop"}
 
 data: [DONE]
 
-`,
-    {
-      headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
-        "X-Accel-Buffering": "no",
-        "X-Vercel-AI-UI-Message-Stream": "v1",
-      },
+`;
+
+export default defineHandler(() => {
+  return new Response(chatResponse, {
+    headers: {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+      "X-Accel-Buffering": "no",
+      "X-Vercel-AI-UI-Message-Stream": "v1",
     },
-  );
+  });
 });

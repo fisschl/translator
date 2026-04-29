@@ -3,8 +3,9 @@
   "include": [
     "vite.config.*",
     "vitest.config.*",
-    "cypress.config.*",
     "playwright.config.*",
+    "mock.config.ts",
+    "mock/server/**/*.ts",
     "eslint.config.*",
     "plugins/**/*"
   ],

@@ -8,7 +8,7 @@ export type MaybeHTMLElement = MaybeRefOrGetter<HTMLElement | null | undefined>;
  * @param options - 配置选项
  * @param options.scrollTarget - 滚动容器元素
  * @param options.listElement - 列表内容元素，用于监听尺寸变化
- * @returns 包含滚动到底部方法的对象
+ * @returns 包含滚动到底部方法和回到底部标志的对象
  * @remarks
  * 该函数提供智能滚动行为：
  * 1. 初始化时自动滚动到底部
@@ -19,8 +19,22 @@ export const useChatScroll = (options: {
   scrollTarget: MaybeHTMLElement;
   listElement: MaybeHTMLElement;
 }) => {
+  /**
+   * 当滚动条距离底部的距离小于该值时，会自动滚动到底部
+   */
+  const BOTTOM_THRESHOLD = 200;
+
   const scrollTarget = computed(() => toValue(options.scrollTarget));
-  const { directions } = useScroll(scrollTarget);
+  const { directions, y } = useScroll(scrollTarget);
+
+  /**
+   * 是否显示回到底部按钮，距离底部的距离大于 BOTTOM_THRESHOLD 时为 true
+   */
+  const showBackToBottom = computed(() => {
+    const el = scrollTarget.value;
+    if (!el) return false;
+    return el.scrollHeight - y.value - el.clientHeight > BOTTOM_THRESHOLD;
+  });
   /**
    * 滚动到底部
    * @param options - 滚动选项
@@ -43,23 +57,15 @@ export const useChatScroll = (options: {
     setTimeout(() => clearInterval(timer), 1000);
   });
 
-  /**
-   * 当滚动条距离底部的距离小于该值时，会自动滚动到底部
-   */
-  const BOTTOM_THRESHOLD = 200;
-
   const listElement = computed(() => toValue(options.listElement));
   useResizeObserver(listElement, () => {
-    if (!scrollTarget.value) return;
-    const { scrollHeight, scrollTop, clientHeight } = scrollTarget.value;
-    const scrollBottom = scrollHeight - scrollTop - clientHeight;
     // 如果正在浏览上方内容，则跳过
-    if (scrollBottom > BOTTOM_THRESHOLD) return;
+    if (showBackToBottom.value) return;
     // 如果正在向上方滚动，则跳过
     if (directions.top) return;
     // 正常情况，自动滚动到底部
     scrollToBottom({ behavior: "smooth" });
   });
 
-  return { scrollToBottom };
+  return { scrollToBottom, showBackToBottom };
 };

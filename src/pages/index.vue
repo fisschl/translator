@@ -3,14 +3,14 @@ import { Chat } from "@ai-sdk/vue";
 import { isReasoningUIPart, isTextUIPart, DefaultChatTransport } from "ai";
 import { get as getIdbKeyval, set as setIdbKeyval } from "idb-keyval";
 import { computed, onMounted, ref, useTemplateRef } from "vue";
+import ChatReasoning from "@/components/Chat/ChatReasoning.vue";
 import { useChatScroll } from "@/components/Markdown/scroll";
-import ReasoningIcon from "@/components/ReasoningIcon.vue";
 
 const { BASE_URL } = import.meta.env;
 
 const HISTORY_KEY = `${BASE_URL}translator-messages`;
 const MODEL_KEY = `${BASE_URL}translator-model`;
-const THINKING_KEY = `${BASE_URL}translator-thinking-enabled`;
+
 const MAX_HISTORY_COUNT = 30;
 const RETAIN_HISTORY_COUNT = 4;
 
@@ -21,7 +21,6 @@ const limitHistory = <T>(messages: T[]) => {
 
 const input = ref("");
 const model = ref("deepseek-v4-flash");
-const thinkingEnabled = ref(false);
 
 const models = [
   { value: "deepseek-v4-flash", label: "DeepSeek V4 Flash" },
@@ -33,7 +32,6 @@ const chat = new Chat({
     api: "/api/chat/completions",
     body: () => ({
       model: model.value,
-      thinking: { type: thinkingEnabled.value ? "enabled" : "disabled" },
     }),
   }),
   onFinish: async ({ messages }) => {
@@ -67,8 +65,6 @@ onMounted(async () => {
   const persistedModel = await getIdbKeyval<string>(MODEL_KEY);
   const isSupportedModel = models.some((item) => item.value === persistedModel);
   if (persistedModel && isSupportedModel) model.value = persistedModel;
-  const persistedThinking = await getIdbKeyval<boolean>(THINKING_KEY);
-  if (typeof persistedThinking === "boolean") thinkingEnabled.value = persistedThinking;
   const history = await readHistory();
   if (history?.length) chat.messages = history;
 });
@@ -98,7 +94,7 @@ onMounted(() => {
   scrollTarget.value = main;
 });
 
-const { scrollToBottom } = useChatScroll({
+const { scrollToBottom, showBackToBottom } = useChatScroll({
   listElement: listTarget,
   scrollTarget,
 });
@@ -115,7 +111,6 @@ async function onSubmit() {
   await new Promise((resolve) => setTimeout(resolve, 120));
   scrollToBottom({ behavior: "smooth" });
   await setIdbKeyval(MODEL_KEY, model.value);
-  await setIdbKeyval(THINKING_KEY, thinkingEnabled.value);
 }
 
 function onInputKeydown(event: KeyboardEvent) {
@@ -154,13 +149,7 @@ const submitButtonLabel = computed(() => {
       }"
     >
       <template v-for="(part, index) in message.parts" :key="index">
-        <div
-          v-if="isReasoningUIPart(part) && part.state === 'streaming'"
-          class="flex items-center gap-2 text-muted"
-        >
-          <ReasoningIcon />
-          <UChatShimmer text="思考中" class="text-sm" />
-        </div>
+        <ChatReasoning v-if="isReasoningUIPart(part)" :text="part.text" class="mb-3" />
         <template v-else-if="isTextUIPart(part)">
           <MarkdownContent v-if="message.role === 'assistant'" :content="part.text" />
           <p
@@ -190,12 +179,17 @@ const submitButtonLabel = computed(() => {
     </p>
     <div class="mt-2 flex items-center gap-4">
       <USelect v-model="model" :items="models" class="w-44" />
-      <div class="flex-1 flex items-center gap-4">
-        <USwitch v-model="thinkingEnabled" label="深度思考" />
-      </div>
+      <p class="flex-1" />
       <UButton color="primary" icon="i-lucide-send" @click="onSubmitButtonClick">
         {{ submitButtonLabel }}
       </UButton>
     </div>
   </div>
+  <UButton
+    v-if="showBackToBottom"
+    icon="i-lucide-arrow-down"
+    size="lg"
+    class="fixed right-10 bottom-10 rounded-full shadow-lg z-10"
+    @click="scrollToBottom({ behavior: 'smooth' })"
+  />
 </template>

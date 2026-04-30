@@ -94,7 +94,7 @@ onMounted(() => {
   scrollTarget.value = main;
 });
 
-const { scrollToBottom, showBackToBottom } = useChatScroll({
+const { scrollToBottom } = useChatScroll({
   listElement: listTarget,
   scrollTarget,
 });
@@ -162,7 +162,7 @@ const submitButtonLabel = computed(() => {
       </template>
     </li>
   </ul>
-  <div class="pb-4 px-4 w-auto">
+  <div class="pb-4 px-4 w-auto sticky bottom-0 bg-white dark:bg-old-neutral-950">
     <UTextarea
       v-model="input"
       :rows="4"
@@ -185,11 +185,4 @@ const submitButtonLabel = computed(() => {
       </UButton>
     </div>
   </div>
-  <UButton
-    v-if="showBackToBottom"
-    icon="i-lucide-arrow-down"
-    size="lg"
-    class="fixed right-10 bottom-10 rounded-full shadow-lg z-10"
-    @click="scrollToBottom({ behavior: 'smooth' })"
-  />
 </template>

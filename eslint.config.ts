@@ -38,6 +38,7 @@ export default defineConfigWithVueTs(
       "vue/require-macro-variable-name": "error",
       "vue/require-typed-ref": "error",
       "vue/max-attributes-per-line": "off",
+      "vue/html-indent": "off",
     },
   },
 );

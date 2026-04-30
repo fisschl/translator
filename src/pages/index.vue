@@ -85,6 +85,7 @@ async function onContextMenu(event: MouseEvent) {
   const text = await navigator.clipboard.readText();
   if (!text) return;
   input.value = text;
+  if (chat.status === "streaming" || chat.status === "submitted") return;
   onSubmit();
 }
 

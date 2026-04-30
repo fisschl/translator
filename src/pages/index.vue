@@ -144,7 +144,7 @@ const submitButtonLabel = computed(() => {
 </script>
 
 <template>
-  <ul ref="list-target" class="flex flex-col flex-1 gap-10 py-8 px-4">
+  <ul ref="list-target" class="flex flex-col flex-1 gap-10 pt-8 pb-4 px-4">
     <li
       v-for="message in chat.messages"
       :key="message.id"
@@ -173,7 +173,7 @@ const submitButtonLabel = computed(() => {
       </template>
     </li>
   </ul>
-  <div class="pb-4 px-4 w-auto sticky bottom-0 bg-white dark:bg-old-neutral-950">
+  <div class="pb-4 px-4 w-auto">
     <UTextarea
       v-model="input"
       :rows="4"

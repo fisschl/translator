@@ -43,7 +43,6 @@
     "@types/hast": "^3.0.4",
     "@vue/eslint-config-typescript": "^14.7.0",
     "eslint": "^10.2.1",
-    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-oxlint": "^1.62.0",
     "eslint-plugin-vue": "^10.9.0",
     "jiti": "^2.6.1",

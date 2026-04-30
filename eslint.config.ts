@@ -1,5 +1,4 @@
 import { defineConfigWithVueTs, vueTsConfigs } from "@vue/eslint-config-typescript";
-import skipFormatting from "eslint-config-prettier/flat";
 import pluginOxlint from "eslint-plugin-oxlint";
 import pluginVue from "eslint-plugin-vue";
 import { globalIgnores } from "eslint/config";
@@ -8,7 +7,6 @@ export default defineConfigWithVueTs(
   ...pluginVue.configs["flat/recommended"],
   vueTsConfigs.recommended,
   ...pluginOxlint.buildFromOxlintConfigFile(".oxlintrc.json"),
-  skipFormatting,
   globalIgnores([
     "**/.agents/**",
     "**/assets/**",
@@ -39,6 +37,7 @@ export default defineConfigWithVueTs(
       "vue/prefer-use-template-ref": "error",
       "vue/require-macro-variable-name": "error",
       "vue/require-typed-ref": "error",
+      "vue/max-attributes-per-line": "off",
     },
   },
 );

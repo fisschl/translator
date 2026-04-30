@@ -46,7 +46,7 @@ export const useChatScroll = (options: {
   /**
    * 当滚动条距离底部的距离小于该值时，会自动滚动到底部
    */
-  const BOTTOM_THRESHOLD = 100;
+  const BOTTOM_THRESHOLD = 200;
 
   const listElement = computed(() => toValue(options.listElement));
   useResizeObserver(listElement, () => {

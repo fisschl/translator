@@ -9,7 +9,6 @@ import { useChatScroll } from "@/components/Markdown/scroll";
 const { BASE_URL } = import.meta.env;
 
 const HISTORY_KEY = `${BASE_URL}translator-messages`;
-const MODEL_KEY = `${BASE_URL}translator-model`;
 
 const MAX_HISTORY_COUNT = 30;
 const RETAIN_HISTORY_COUNT = 4;
@@ -20,19 +19,10 @@ const limitHistory = <T>(messages: T[]) => {
 };
 
 const input = ref("");
-const model = ref("deepseek-v4-flash");
-
-const models = [
-  { value: "deepseek-v4-flash", label: "DeepSeek V4 Flash" },
-  { value: "deepseek-v4-pro", label: "DeepSeek V4 Pro" },
-];
 
 const chat = new Chat({
   transport: new DefaultChatTransport({
-    api: "/api/chat/completions",
-    body: () => ({
-      model: model.value,
-    }),
+    api: "/api/chat/translate",
   }),
   onFinish: async ({ messages }) => {
     const limitedMessages = limitHistory(messages);
@@ -62,9 +52,6 @@ const readHistory = async () => {
  * 生命周期钩子，在组件挂载时从 IndexedDB 恢复聊天历史记录。
  */
 onMounted(async () => {
-  const persistedModel = await getIdbKeyval<string>(MODEL_KEY);
-  const isSupportedModel = models.some((item) => item.value === persistedModel);
-  if (persistedModel && isSupportedModel) model.value = persistedModel;
   const history = await readHistory();
   if (history?.length) chat.messages = history;
 });
@@ -106,11 +93,10 @@ const { scrollToBottom } = useChatScroll({
 async function onSubmit() {
   const userInput = input.value.trim();
   if (!userInput) return;
-  chat.sendMessage({ text: `请帮我翻译以下内容：\n\n${userInput}` });
+  chat.sendMessage({ text: userInput });
   input.value = "";
   await new Promise((resolve) => setTimeout(resolve, 120));
   scrollToBottom({ behavior: "smooth" });
-  await setIdbKeyval(MODEL_KEY, model.value);
 }
 
 function onInputKeydown(event: KeyboardEvent) {
@@ -136,6 +122,12 @@ const submitButtonLabel = computed(() => {
   if (chat.status === "error") return "重试";
   return "提交";
 });
+
+async function clearHistory() {
+  if (chat.status === "streaming" || chat.status === "submitted") chat.stop();
+  chat.messages = [];
+  await setIdbKeyval(HISTORY_KEY, JSON.stringify([]));
+}
 </script>
 
 <template>
@@ -177,9 +169,18 @@ const submitButtonLabel = computed(() => {
     <p v-if="chat.error" class="mt-2 text-sm text-error">
       {{ chat.error.message }}
     </p>
-    <div class="mt-2 flex items-center gap-4">
-      <USelect v-model="model" :items="models" class="w-44" />
+    <div class="mt-2 flex items-center gap-2">
       <p class="flex-1" />
+      <UTooltip text="清除历史记录">
+        <UButton
+        color="info"
+        variant="subtle"
+        icon="i-lucide-brush-cleaning"
+        aria-label="清除历史记录"
+        title="清除历史记录"
+        @click="clearHistory"
+      />
+      </UTooltip>
       <UButton color="primary" icon="i-lucide-send" @click="onSubmitButtonClick">
         {{ submitButtonLabel }}
       </UButton>

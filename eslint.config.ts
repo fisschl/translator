@@ -2,11 +2,12 @@ import { defineConfigWithVueTs, vueTsConfigs } from "@vue/eslint-config-typescri
 import pluginOxlint from "eslint-plugin-oxlint";
 import pluginVue from "eslint-plugin-vue";
 import { globalIgnores } from "eslint/config";
+import oxlintConfig from "./oxlint.config";
 
 export default defineConfigWithVueTs(
   ...pluginVue.configs["flat/recommended"],
   vueTsConfigs.recommended,
-  ...pluginOxlint.buildFromOxlintConfigFile(".oxlintrc.json"),
+  ...pluginOxlint.buildFromOxlintConfig(oxlintConfig),
   globalIgnores([
     "**/.agents/**",
     "**/assets/**",

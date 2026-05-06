@@ -5,6 +5,8 @@
     "vitest.config.*",
     "playwright.config.*",
     "eslint.config.*",
+    "oxlint.config.*",
+    "oxfmt.config.*",
     "plugins/**/*"
   ],
   "compilerOptions": {

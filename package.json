@@ -8,21 +8,21 @@
     "lint": "oxlint --fix && eslint --fix --cache && oxfmt && vue-tsc --build"
   },
   "dependencies": {
-    "@ai-sdk/deepseek": "^2.0.30",
-    "@ai-sdk/vue": "^3.0.169",
+    "@ai-sdk/deepseek": "^2.0.32",
+    "@ai-sdk/vue": "^3.0.175",
     "@nuxt/ui": "^4.7.1",
     "@tailwindcss/typography": "^0.5.19",
     "@tsconfig/node24": "^24.0.4",
     "@types/node": "^25.6.0",
     "@vitejs/plugin-vue": "^6.0.6",
     "@vue/tsconfig": "^0.9.1",
-    "@vueuse/core": "^14.2.1",
-    "ai": "^6.0.169",
-    "es-toolkit": "^1.46.0",
+    "@vueuse/core": "^14.3.0",
+    "ai": "^6.0.175",
+    "es-toolkit": "^1.46.1",
     "hast-util-to-string": "^3.0.1",
     "idb-keyval": "^6.2.2",
     "katex": "^0.16.45",
-    "oxfmt": "^0.47.0",
+    "oxfmt": "^0.48.0",
     "p-limit": "^7.3.0",
     "rehype-katex": "^7.0.1",
     "remark-gfm": "^4.0.1",
@@ -36,17 +36,17 @@
     "typescript": "^6.0.3",
     "unified": "^11.0.5",
     "vite": "^8.0.10",
-    "vue": "^3.5.33",
+    "vue": "^3.5.34",
     "vue-router": "^5.0.6"
   },
   "devDependencies": {
     "@types/hast": "^3.0.4",
     "@vue/eslint-config-typescript": "^14.7.0",
-    "eslint": "^10.2.1",
-    "eslint-plugin-oxlint": "^1.62.0",
-    "eslint-plugin-vue": "^10.9.0",
-    "jiti": "^2.6.1",
-    "oxlint": "^1.62.0",
-    "vue-tsc": "^3.2.7"
+    "eslint": "^10.3.0",
+    "eslint-plugin-oxlint": "^1.63.0",
+    "eslint-plugin-vue": "^10.9.1",
+    "jiti": "^2.7.0",
+    "oxlint": "^1.63.0",
+    "vue-tsc": "^3.2.8"
   }
 }

@@ -1,15 +1,8 @@
 import { defineConfig } from "oxfmt";
+import { ignorePatterns } from "./oxlint.config.ts";
 
 export default defineConfig({
-  ignorePatterns: [
-    "**/.agents/**",
-    "**/assets/**",
-    "**/dist/**",
-    "**/*.d.ts",
-    "**/*.js",
-    "**/*.mjs",
-    "**/coverage/**",
-  ],
+  ignorePatterns,
   sortImports: {
     newlinesBetween: false,
   },

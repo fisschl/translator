@@ -173,13 +173,13 @@ async function clearHistory() {
       <p class="flex-1" />
       <UTooltip text="清除历史记录">
         <UButton
-        color="info"
-        variant="subtle"
-        icon="i-lucide-brush-cleaning"
-        aria-label="清除历史记录"
-        title="清除历史记录"
-        @click="clearHistory"
-      />
+          color="info"
+          variant="subtle"
+          icon="i-lucide-brush-cleaning"
+          aria-label="清除历史记录"
+          title="清除历史记录"
+          @click="clearHistory"
+        />
       </UTooltip>
       <UButton color="primary" icon="i-lucide-send" @click="onSubmitButtonClick">
         {{ submitButtonLabel }}

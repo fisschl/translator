@@ -6,7 +6,6 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
-  doubleClick: [event: MouseEvent];
   keydown: [event: KeyboardEvent];
 }>();
 
@@ -25,7 +24,6 @@ const handleClick = () => {
   <div
     class="bg-elevated/20 border-default focus-within:border-primary overflow-hidden rounded-md border-2 border-solid"
     @click="handleClick"
-    @dblclick="emit('doubleClick', $event)"
     @keydown="emit('keydown', $event)"
   >
     <UEditor

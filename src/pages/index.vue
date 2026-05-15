@@ -56,21 +56,6 @@ onMounted(async () => {
   if (history?.length) chat.messages = history;
 });
 
-/**
- * 双击输入区时：若当前为空，读取系统剪贴板并填入后自动提交。
- *
- * @param event - 双击触发的鼠标事件。
- */
-async function onUserInputDoubleClick(event: MouseEvent) {
-  if (input.value?.trim()) return;
-  event.preventDefault();
-  const text = await navigator.clipboard.readText();
-  if (!text) return;
-  input.value = text;
-  if (chat.status === "streaming" || chat.status === "submitted") return;
-  onSubmit();
-}
-
 const scrollTarget = useTemplateRef("scroll-target");
 const listTarget = useTemplateRef("list-target");
 
@@ -133,7 +118,6 @@ const assistantMessages = computed(() => {
         v-model="input"
         class="flex-1"
         placeholder="请输入要翻译的内容"
-        @double-click="onUserInputDoubleClick"
         @keydown="onInputKeydown"
       />
       <p v-if="chat.error" class="text-error mt-2 text-sm">

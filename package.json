@@ -12,6 +12,7 @@
     "@ai-sdk/vue": "^3.0.175",
     "@nuxt/ui": "^4.7.1",
     "@tailwindcss/typography": "^0.5.19",
+    "@tiptap/vue-3": "^3.23.4",
     "@tsconfig/node24": "^24.0.4",
     "@types/node": "^25.6.0",
     "@vitejs/plugin-vue": "^6.0.6",

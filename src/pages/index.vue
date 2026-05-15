@@ -18,7 +18,7 @@ const limitHistory = <T>(messages: T[]) => {
   return messages;
 };
 
-const input = ref("");
+const input = ref<string>();
 
 const chat = new Chat({
   transport: new DefaultChatTransport({
@@ -57,13 +57,12 @@ onMounted(async () => {
 });
 
 /**
- * 处理文本框上的右键菜单事件。
- * 当文本框为空时，读取系统剪贴板内容并粘贴，随后自动提交表单。
+ * 双击输入区时：若当前为空，读取系统剪贴板并填入后自动提交。
  *
- * @param event - 右键点击触发的鼠标事件。
+ * @param event - 双击触发的鼠标事件。
  */
-async function onContextMenu(event: MouseEvent) {
-  if (input.value.trim()) return;
+async function onUserInputDoubleClick(event: MouseEvent) {
+  if (input.value?.trim()) return;
   event.preventDefault();
   const text = await navigator.clipboard.readText();
   if (!text) return;
@@ -72,14 +71,8 @@ async function onContextMenu(event: MouseEvent) {
   onSubmit();
 }
 
+const scrollTarget = useTemplateRef("scroll-target");
 const listTarget = useTemplateRef("list-target");
-const scrollTarget = ref<HTMLElement | null>(null);
-
-onMounted(() => {
-  const main = document.getElementById("main");
-  if (!(main instanceof HTMLElement)) return;
-  scrollTarget.value = main;
-});
 
 const { scrollToBottom } = useChatScroll({
   listElement: listTarget,
@@ -88,13 +81,12 @@ const { scrollToBottom } = useChatScroll({
 
 /**
  * 将用户输入的 trimmed 内容发送至翻译 API。
- * 提交后清空输入框。
+ * 提交后保留输入框内容。
  */
 async function onSubmit() {
-  const userInput = input.value.trim();
-  if (!userInput) return;
-  chat.sendMessage({ text: userInput });
-  input.value = "";
+  const text = input.value?.trim();
+  if (!text) return;
+  chat.sendMessage({ text });
   await new Promise((resolve) => setTimeout(resolve, 120));
   scrollToBottom({ behavior: "smooth" });
 }
@@ -128,62 +120,53 @@ async function clearHistory() {
   chat.messages = [];
   await setIdbKeyval(HISTORY_KEY, JSON.stringify([]));
 }
+
+const assistantMessages = computed(() => {
+  return chat.messages.filter((item) => item.role === "assistant");
+});
 </script>
 
 <template>
-  <ul ref="list-target" class="flex flex-col flex-1 gap-10 pt-8 pb-4 px-4">
-    <li
-      v-for="message in chat.messages"
-      :key="message.id"
-      class="flex gap-3 flex-col"
-      :class="{
-        'self-end max-w-4/5': message.role === 'user',
-      }"
-    >
-      <template v-for="(part, index) in message.parts" :key="index">
-        <ChatReasoning v-if="isReasoningUIPart(part)" :text="part.text" class="mb-3" />
-        <template v-else-if="isTextUIPart(part)">
-          <MarkdownContent v-if="message.role === 'assistant'" :content="part.text" />
-          <p
-            v-else-if="message.role === 'user'"
-            class="whitespace-pre-wrap bg-elevated/50 py-3 px-4 rounded-lg"
-          >
-            {{ part.text }}
-          </p>
-        </template>
-      </template>
-    </li>
-  </ul>
-  <div class="pb-4 px-4 w-auto sticky bottom-0 bg-white dark:bg-old-neutral-950">
-    <UTextarea
-      v-model="input"
-      :rows="4"
-      :maxrows="25"
-      autoresize
-      size="lg"
-      class="w-full"
-      placeholder="请输入要翻译的内容（单击右键快速翻译复制的内容）"
-      @contextmenu="onContextMenu"
-      @keydown="onInputKeydown"
-    />
-    <p v-if="chat.error" class="mt-2 text-sm text-error">
-      {{ chat.error.message }}
-    </p>
-    <div class="mt-2 flex items-center gap-2">
-      <p class="flex-1" />
-      <UTooltip text="清除历史记录">
-        <UButton
-          color="info"
-          variant="subtle"
-          icon="i-lucide-brush-cleaning"
-          aria-label="清除历史记录"
-          title="清除历史记录"
-          @click="clearHistory"
-        />
-      </UTooltip>
-      <UButton color="primary" icon="i-lucide-send" @click="onSubmitButtonClick">
-        {{ submitButtonLabel }}
-      </UButton>
+  <div class="flex h-screen">
+    <div class="flex h-full w-2/5 flex-col px-3 py-3">
+      <UserInputTextArea
+        v-model="input"
+        class="flex-1"
+        placeholder="请输入要翻译的内容"
+        @double-click="onUserInputDoubleClick"
+        @keydown="onInputKeydown"
+      />
+      <p v-if="chat.error" class="text-error mt-2 text-sm">
+        {{ chat.error.message }}
+      </p>
+      <div class="mt-2 flex items-center gap-2">
+        <p class="flex-1" />
+        <UTooltip text="清除历史记录">
+          <UButton
+            color="info"
+            variant="subtle"
+            icon="i-lucide-brush-cleaning"
+            aria-label="清除历史记录"
+            title="清除历史记录"
+            @click="clearHistory"
+          />
+        </UTooltip>
+        <UButton color="primary" icon="i-lucide-send" @click="onSubmitButtonClick">
+          {{ submitButtonLabel }}
+        </UButton>
+      </div>
+    </div>
+    <div ref="scroll-target" class="flex-1 overflow-y-auto pl-2">
+      <ul ref="list-target" class="flex flex-1 flex-col gap-4 py-4 pr-3">
+        <li v-for="message in assistantMessages" :key="message.id" class="flex flex-col gap-3">
+          <template v-for="(part, index) in message.parts" :key="index">
+            <ChatReasoning v-if="isReasoningUIPart(part)" :text="part.text" class="mb-3" />
+            <template v-else-if="isTextUIPart(part)">
+              <MarkdownContent v-if="message.role === 'assistant'" :content="part.text" />
+            </template>
+          </template>
+        </li>
+      </ul>
     </div>
   </div>
 </template>

@@ -6,4 +6,5 @@ export default defineConfig({
   sortImports: {
     newlinesBetween: false,
   },
+  sortTailwindcss: true,
 });

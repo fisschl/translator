@@ -32,6 +32,7 @@ const handleClick = () => {
       :class="$style.editor"
       class="max-h-full overflow-auto"
       content-type="markdown"
+      :starter-kit="{ underline: false }"
       :image="false"
       :mention="false"
       autofocus

@@ -35,6 +35,7 @@ const handleClick = () => {
       class="max-h-full overflow-auto"
       content-type="markdown"
       :image="false"
+      :mention="false"
       autofocus
       :placeholder="placeholder"
     />

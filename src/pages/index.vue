@@ -76,17 +76,15 @@ async function onSubmit() {
   scrollToBottom({ behavior: "smooth" });
 }
 
-function onInputKeydown(event: KeyboardEvent) {
-  if (event.key !== "Enter" || event.shiftKey || event.isComposing) return;
-  event.preventDefault();
-  onSubmit();
+async function onInputKeydown(event: KeyboardEvent) {
+  if (event.isComposing) return;
+  const isPasteChord = (event.ctrlKey || event.metaKey) && event.key.toUpperCase() === "V";
+  if (!isPasteChord) return;
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  await onSubmit();
 }
 
 function onSubmitButtonClick() {
-  if (chat.status === "streaming" || chat.status === "submitted") {
-    chat.stop();
-    return;
-  }
   if (chat.status === "error") {
     chat.regenerate();
     return;
@@ -94,16 +92,19 @@ function onSubmitButtonClick() {
   onSubmit();
 }
 
-const submitButtonLabel = computed(() => {
-  if (chat.status === "streaming" || chat.status === "submitted") return "停止";
+const submitButtonText = computed(() => {
   if (chat.status === "error") return "重试";
   return "提交";
 });
 
+const stopButtonClick = () => {
+  chat.stop();
+};
+
 async function clearHistory() {
   if (chat.status === "streaming" || chat.status === "submitted") chat.stop();
   chat.messages = [];
-  await setIdbKeyval(HISTORY_KEY, JSON.stringify([]));
+  input.value = undefined;
 }
 
 const assistantMessages = computed(() => {
@@ -125,7 +126,17 @@ const assistantMessages = computed(() => {
       </p>
       <div class="mt-2 flex items-center gap-2">
         <p class="flex-1" />
-        <UTooltip text="清除历史记录">
+        <UTooltip v-if="chat.status === 'streaming' || chat.status === 'submitted'" text="停止">
+          <UButton
+            color="error"
+            variant="subtle"
+            icon="i-lucide-square"
+            aria-label="停止"
+            title="停止"
+            @click="stopButtonClick"
+          />
+        </UTooltip>
+        <UTooltip v-else text="清除历史记录">
           <UButton
             color="info"
             variant="subtle"
@@ -135,16 +146,21 @@ const assistantMessages = computed(() => {
             @click="clearHistory"
           />
         </UTooltip>
-        <UButton color="primary" icon="i-lucide-send" @click="onSubmitButtonClick">
-          {{ submitButtonLabel }}
+        <UButton
+          color="primary"
+          icon="i-lucide-send"
+          :loading="chat.status === 'streaming' || chat.status === 'submitted'"
+          @click="onSubmitButtonClick"
+        >
+          {{ submitButtonText }}
         </UButton>
       </div>
     </div>
     <div ref="scroll-target" class="flex-1 overflow-y-auto pl-2">
-      <ul ref="list-target" class="flex flex-1 flex-col gap-4 py-4 pr-3">
-        <li v-for="message in assistantMessages" :key="message.id" class="flex flex-col gap-3">
+      <ul ref="list-target" class="flex flex-1 flex-col gap-8 py-4 pr-3">
+        <li v-for="message in assistantMessages" :key="message.id" class="flex flex-col gap-4">
           <template v-for="(part, index) in message.parts" :key="index">
-            <ChatReasoning v-if="isReasoningUIPart(part)" :text="part.text" class="mb-3" />
+            <ChatReasoning v-if="isReasoningUIPart(part)" :text="part.text" />
             <template v-else-if="isTextUIPart(part)">
               <MarkdownContent v-if="message.role === 'assistant'" :content="part.text" />
             </template>
